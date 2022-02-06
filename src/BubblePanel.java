@@ -4,19 +4,25 @@ import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import javax.swing.Timer;
 
+@SuppressWarnings("serial")
 public class BubblePanel extends JPanel {
 	Random rand = new Random();
 	ArrayList <Bubble> bubbleList;
-	int initialSize = 20;
+	int initialSize = 30;
+	Timer timer;
+	int latency = 33;
 	
 	public BubblePanel() {
+		timer = new Timer(latency, new BubbleListener() );
 		bubbleList = new ArrayList<>();
 		setBackground(Color.BLACK);
 		//testBubbles();
 		addMouseListener( new BubbleListener() );
 		addMouseMotionListener( new BubbleListener() );
 		addMouseWheelListener( new BubbleListener() );
+		timer.start();
 		}
 	
 	public void paintComponent(Graphics canvas) {
@@ -36,7 +42,7 @@ public class BubblePanel extends JPanel {
 		repaint();
 		}
 	
-	private class BubbleListener extends MouseAdapter {
+	private class BubbleListener extends MouseAdapter implements ActionListener{
 		public void mousePressed(MouseEvent e) {
 			bubbleList.add(new Bubble(e.getX(), e.getY(), initialSize));
 			repaint();
@@ -48,6 +54,11 @@ public class BubblePanel extends JPanel {
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			initialSize += e.getUnitsToScroll();
 			}
+		public void actionPerformed(ActionEvent e) {
+			for (Bubble b : bubbleList)
+				b.update();
+			repaint();
+		}
 	}
 	
 	private class Bubble {
@@ -62,13 +73,19 @@ public class BubblePanel extends JPanel {
 			size = newSize;
 			color = new Color( rand.nextInt(256),
 					rand.nextInt(256),
-					rand.nextInt(256) );
+					rand.nextInt(256),
+					rand.nextInt(256)
+					);
 		}
 
 		public void draw(Graphics canvas) {
 			canvas.setColor(color);
 			canvas.fillOval(x - size/2, y - size/2, size, size);
 		}
+		
+		public void update() {
+			y -=3;
+			}
 	}
 
 }
